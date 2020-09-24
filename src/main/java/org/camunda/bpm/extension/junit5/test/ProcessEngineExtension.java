@@ -12,9 +12,13 @@ import org.camunda.bpm.engine.impl.bpmn.deployer.BpmnDeployer;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.cmmn.deployer.CmmnDeployer;
 import org.camunda.bpm.engine.impl.dmn.deployer.DecisionDefinitionDeployer;
+import org.camunda.bpm.engine.impl.history.HistoryLevel;
 import org.camunda.bpm.engine.impl.test.TestHelper;
 import org.camunda.bpm.engine.repository.DeploymentBuilder;
 import org.camunda.bpm.engine.test.Deployment;
+import org.camunda.bpm.engine.test.RequiredHistoryLevel;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -25,7 +29,9 @@ import org.junit.jupiter.api.extension.TestWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProcessEngineExtension implements TestWatcher, TestInstancePostProcessor, BeforeTestExecutionCallback, ParameterResolver {
+public class ProcessEngineExtension implements TestWatcher, 
+    TestInstancePostProcessor, BeforeTestExecutionCallback, AfterTestExecutionCallback, 
+    ParameterResolver {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProcessEngineExtension.class);
   protected ProcessEngine processEngine;
@@ -33,6 +39,8 @@ public class ProcessEngineExtension implements TestWatcher, TestInstancePostProc
   
   protected String configurationResource = "camunda.cfg.xml";
   protected String configurationResourceCompat = "activiti.cfg.xml";
+  
+  private String deploymentId;
 
   public final static List<String> RESOURCE_SUFFIXES = new ArrayList<>();
 
@@ -95,6 +103,7 @@ public class ProcessEngineExtension implements TestWatcher, TestInstancePostProc
         throw ex;
       }
     }
+    processEngineConfiguration = (ProcessEngineConfigurationImpl) processEngine.getProcessEngineConfiguration();
   }
 
   private void inject(Object instance, Field field) {
@@ -113,21 +122,89 @@ public class ProcessEngineExtension implements TestWatcher, TestInstancePostProc
     Method testMethod = context.getTestMethod().get();
     Class<?> testClass = context.getTestClass().get();
     
+    doDeployment(testMethod, testClass);
+    
+    checkRequiredHistoryLevel(testMethod);
+  }
+
+  private void doDeployment(Method testMethod, Class<?> testClass) {
     DeploymentBuilder deploymentBuilder = processEngine.getRepositoryService()
         .createDeployment()
         .name(testClass.getSimpleName()+"."+testMethod.getName());
     
     Deployment methodAnnotation = testMethod.getAnnotation(Deployment.class);
     if (methodAnnotation != null) {
+      String[] resources = methodAnnotation.resources();
+      if (resources.length == 0) {
+        deploymentBuilder.addClasspathResource(TestHelper.getBpmnProcessDefinitionResource(
+            testClass, testMethod.getName()));
+      } else {
+        for (int i = 0; i < resources.length; i++) {
+          deploymentBuilder.addClasspathResource(resources[i]);
+        }
+      }
       LOG.info("annotation @Deployment creates deployment for {}.{}", testClass.getName(), testMethod.getName());
-      deploymentBuilder.addClasspathResource(
-          TestHelper.getBpmnProcessDefinitionResource(testClass, testMethod.getName()));
+      deploymentId = deploymentBuilder
+          .deploy()
+          .getId();
     } else {
       Deployment classAnnotation = testClass.getAnnotation(Deployment.class);
-      deploymentBuilder.addClasspathResource(
-          TestHelper.getBpmnProcessDefinitionResource(testClass, null));
+      if (classAnnotation != null) {
+        LOG.info("annotation @Deployment creates deployment for {}.{}", testClass.getName(), testMethod.getName());
+        deploymentId = deploymentBuilder
+            .addClasspathResource(TestHelper.getBpmnProcessDefinitionResource(
+                testClass, null))
+            .deploy()
+            .getId();
+      } else {
+        Class<?> lookForAnnotationClass = testClass.getSuperclass();
+        while (lookForAnnotationClass != Object.class) {
+          classAnnotation = lookForAnnotationClass.getAnnotation(Deployment.class);
+          if (classAnnotation == null) {
+            lookForAnnotationClass = lookForAnnotationClass.getSuperclass();
+          } else {
+            break;
+          }
+        }
+        if (classAnnotation != null) {
+          LOG.info("annotation @Deployment creates deployment for {}.{}", testClass.getName(), testMethod.getName());
+          deploymentId = deploymentBuilder
+              .addClasspathResource(TestHelper.getBpmnProcessDefinitionResource(
+                  lookForAnnotationClass, null))
+              .deploy()
+              .getId();
+        }
+      }
     }
-    deploymentBuilder.deploy();
+  }
+  
+  private void checkRequiredHistoryLevel(Method testMethod) {
+    RequiredHistoryLevel annotation = testMethod.getAnnotation(RequiredHistoryLevel.class);
+    if (annotation != null) {
+      HistoryLevel currentHistoryLevel = getProcessEngineConfiguration().getHistoryLevel();
+      String requiredHistoryLevelName = annotation.value();
+      int requiredHistoryLevel = 0; 
+      for (HistoryLevel level : getProcessEngineConfiguration().getHistoryLevels()) {
+        if (level.getName().equalsIgnoreCase(requiredHistoryLevelName)) {
+          requiredHistoryLevel = level.getId();
+        }
+      }
+      Assumptions.assumeTrue(
+          currentHistoryLevel.getId() >= requiredHistoryLevel, 
+          "ignored because the current history level is too low");
+    }
+  }
+
+  @Override
+  public void afterTestExecution(ExtensionContext context) throws Exception {
+    Method testMethod = context.getTestMethod().get();
+    Class<?> testClass = context.getTestClass().get();
+        
+    if (deploymentId != null) {
+      LOG.info("annotation @Deployment deletes deployment for {}.{}", testClass.getName(), testMethod.getName());     
+      processEngine.getRepositoryService().deleteDeployment(deploymentId, true, true, true);
+      deploymentId = null;
+    }  
   }
 
   @Override
