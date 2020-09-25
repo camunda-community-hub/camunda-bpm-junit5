@@ -1,6 +1,5 @@
 package org.camunda.bpm.extension.junit5.test;
 
-import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,6 +28,26 @@ import org.junit.jupiter.api.extension.TestWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Junit 5 Extension to create and inject a process engine into the test class.
+ * <p>
+ * Used as 
+ * <code>@ExtendWith(ProcessEngineExtension.class)</code>
+ * the process engine is build from the configuration file
+ * <tt>camunda.cfg.xml</tt> found on the classpath.
+ * <p>
+ * Used as <pre>{@code 
+ * @RegisterExtension
+ * ProcessEngineExtension extension = ProcessEngineExtension.builder()
+ *    .configurationResource("myConfigurationFile.xml")
+ *    .build();}</pre>
+ * you can provide a different configuration file. 
+ * <p>
+ * This extension injects the process engine into a given field in the test class.
+ * 
+ * @author Ingo Richtsmeier
+ *
+ */
 public class ProcessEngineExtension implements TestWatcher, 
     TestInstancePostProcessor, BeforeTestExecutionCallback, AfterTestExecutionCallback, 
     ParameterResolver {
@@ -38,7 +57,6 @@ public class ProcessEngineExtension implements TestWatcher,
   protected ProcessEngineConfigurationImpl processEngineConfiguration;
   
   protected String configurationResource = "camunda.cfg.xml";
-  protected String configurationResourceCompat = "activiti.cfg.xml";
   
   private String deploymentId;
 
@@ -94,15 +112,7 @@ public class ProcessEngineExtension implements TestWatcher,
   }
 
   protected void initializeProcessEngine() {
-    try {
-      processEngine = TestHelper.getProcessEngine(configurationResource);
-    } catch (RuntimeException ex) {
-      if (ex.getCause() != null && ex.getCause() instanceof FileNotFoundException) {
-        processEngine = TestHelper.getProcessEngine(configurationResourceCompat);
-      } else {
-        throw ex;
-      }
-    }
+    processEngine = TestHelper.getProcessEngine(configurationResource);
     processEngineConfiguration = (ProcessEngineConfigurationImpl) processEngine.getProcessEngineConfiguration();
   }
 
