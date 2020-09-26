@@ -18,7 +18,7 @@ Add the annotation to your test class:
 
     @ExtendWith(ProcessEngineExtension.class)
     
-and provide a field where the process engine gets injected for further access:
+For further access provide a field where the process engine gets injected:
 
     public ProcessEngine processEngine; 
     
@@ -32,4 +32,11 @@ Or register the extension from the builder:
 and access the process engine from the extension object:
 
     RuntimeService runtimeService = extension.getProcessEngine().getRuntimeService(); 
+
+
+### Examples
+To use the JUnit 5 extension together with camunda-bpm-assert have a look at the [example-camunda-bpm-assert-junit5](examples/camunda-bpm-assert/README.md).
+
+
+
     

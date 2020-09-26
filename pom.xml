@@ -15,6 +15,7 @@
   
   <modules>
     <module>core</module>
+    <module>examples/camunda-bpm-assert</module>
   </modules>
   
   <dependencyManagement>
