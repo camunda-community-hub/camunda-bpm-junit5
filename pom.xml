@@ -18,4 +18,11 @@
     <module>examples/camunda-bpm-assert</module>
   </modules>
   
+  <scm>
+    <connection>scm:git:git@github.com:camunda/camunda-bpm-junit5.git</connection>
+    <developerConnection>scm:git:git@github.com:camunda/camunda-bpm-junit5.git</developerConnection>
+    <url>https://github.com/camunda/camunda-bpm-junit5.git</url>
+    <tag>HEAD</tag>
+  </scm>
+  
 </project>
