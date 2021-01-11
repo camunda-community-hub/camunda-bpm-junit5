@@ -1,4 +1,7 @@
 # camunda-bpm-junit5
+
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.camunda.bpm.extension/camunda-bpm-junit5/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.camunda.bpm.extension/camunda-bpm-junit5)
+
 Camunda Community Extension to write process tests with JUnit5
 
 ## Usage
