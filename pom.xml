@@ -15,7 +15,6 @@
   
   <modules>
     <module>core</module>
-    <module>examples/camunda-bpm-assert</module>
   </modules>
   
   <scm>
@@ -46,6 +45,15 @@
     <url>https://github.com/camunda/camunda-bpm-junit5/issues</url>
   </issueManagement>
   <profiles>
+    <profile>
+      <id>with-examples</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>examples/camunda-bpm-assert</module>
+      </modules>
+    </profile>
     <profile>
       <id>community-action-maven-release</id>
       <build>
