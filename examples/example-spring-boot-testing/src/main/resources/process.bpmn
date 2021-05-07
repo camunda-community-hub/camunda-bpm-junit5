@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0fr9mxs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
+  <bpmn:process id="testing-process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_1fp17al</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1fp17al" sourceRef="StartEvent_1" targetRef="say-hello" />
+    <bpmn:endEvent id="EndEvent_0x6ir2l">
+      <bpmn:incoming>Flow_1u5r9v6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_16gzt2m" sourceRef="say-hello" targetRef="Gateway_0ql1ls5" />
+    <bpmn:userTask id="say-hello" name="Say hello to&#10;demo" camunda:candidateUsers="demo">
+      <bpmn:incoming>SequenceFlow_1fp17al</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_16gzt2m</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_0ql1ls5" name="Person known?">
+      <bpmn:incoming>SequenceFlow_16gzt2m</bpmn:incoming>
+      <bpmn:outgoing>Flow_14er8gb</bpmn:outgoing>
+      <bpmn:outgoing>Flow_06xxdle</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_14er8gb" name="yes" sourceRef="Gateway_0ql1ls5" targetRef="Activity_13lkqxf">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${known == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1u5r9v6" sourceRef="Activity_13lkqxf" targetRef="EndEvent_0x6ir2l" />
+    <bpmn:serviceTask id="Activity_13lkqxf" name="Send greeting" camunda:delegateExpression="${sendDelegate}">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="message">
+            <camunda:script scriptFormat="freemarker">hello ${name}, nice to meet you again!</camunda:script>
+          </camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_14er8gb</bpmn:incoming>
+      <bpmn:outgoing>Flow_1u5r9v6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_06xxdle" name="no" sourceRef="Gateway_0ql1ls5" targetRef="Activity_0xw9dql">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${known == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_1h3y9d6" name="Invitation sent">
+      <bpmn:incoming>Flow_0ahux9n</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0ahux9n" sourceRef="Activity_0xw9dql" targetRef="Event_1h3y9d6" />
+    <bpmn:serviceTask id="Activity_0xw9dql" name="Send invitation" camunda:asyncBefore="true" camunda:delegateExpression="${sendDelegate}">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="message">
+            <camunda:script scriptFormat="freemarker">Hello ${name}, I would like to meet you</camunda:script>
+          </camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_06xxdle</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ahux9n</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="testing-process">
+      <bpmndi:BPMNEdge id="SequenceFlow_16gzt2m_di" bpmnElement="SequenceFlow_16gzt2m">
+        <di:waypoint x="370" y="117" />
+        <di:waypoint x="425" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1fp17al_di" bpmnElement="SequenceFlow_1fp17al">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="270" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14er8gb_di" bpmnElement="Flow_14er8gb">
+        <di:waypoint x="475" y="117" />
+        <di:waypoint x="520" y="117" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="489" y="99" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1u5r9v6_di" bpmnElement="Flow_1u5r9v6">
+        <di:waypoint x="620" y="117" />
+        <di:waypoint x="672" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06xxdle_di" bpmnElement="Flow_06xxdle">
+        <di:waypoint x="450" y="142" />
+        <di:waypoint x="450" y="230" />
+        <di:waypoint x="520" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="459" y="183" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ahux9n_di" bpmnElement="Flow_0ahux9n">
+        <di:waypoint x="620" y="230" />
+        <di:waypoint x="672" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_08mft2c_di" bpmnElement="say-hello">
+        <dc:Bounds x="270" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0x6ir2l_di" bpmnElement="EndEvent_0x6ir2l">
+        <dc:Bounds x="672" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0ql1ls5_di" bpmnElement="Gateway_0ql1ls5" isMarkerVisible="true">
+        <dc:Bounds x="425" y="92" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="412" y="62" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0lcysfu_di" bpmnElement="Activity_13lkqxf">
+        <dc:Bounds x="520" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1h3y9d6_di" bpmnElement="Event_1h3y9d6">
+        <dc:Bounds x="672" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="656" y="255" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0bloodx_di" bpmnElement="Activity_0xw9dql">
+        <dc:Bounds x="520" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
