@@ -16,12 +16,8 @@
  */
 package org.camunda.bpm.unittest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertThat;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.complete;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.processInstanceQuery;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.runtimeService;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.task;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
