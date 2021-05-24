@@ -41,4 +41,4 @@ If you use eclipse you can simply import the project by selecting `File / Import
 [assert]: https://github.com/camunda/camunda-bpm-assert
 
 ## License
-The source files in this repository are made available under the [Apache License Version 2.0](./LICENSE).
+The source files in this repository are made available under the [Apache License Version 2.0](../../LICENSE).
