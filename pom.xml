@@ -14,6 +14,10 @@
   <name>Camunda BPM JUnit 5 Support</name>
   <description>Community extension to provide a process engine for JUnit 5 tests.</description>
   
+  <properties>
+    <version.java>1.8</version.java>
+  </properties>
+  
   <modules>
     <module>core</module>
   </modules>
