@@ -52,6 +52,7 @@
       </activation>
       <modules>
         <module>examples/camunda-bpm-assert</module>
+        <module>examples/engine-camunda-bpm-assert</module>
       </modules>
     </profile>
     <profile>

@@ -14,27 +14,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.camunda.bpm.unittest;
+package org.camunda.bpm.unittest.engine;
 
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
 
+import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.extension.junit5.test.ProcessEngineExtension;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /**
- * @author Daniel Meyer
- * @author Martin Schimak
+ * @author Ingo Richtsmeier
  */
-@ExtendWith(ProcessEngineExtension.class)
-public class SimpleTestCase {
-
+public class UseProcessEngineTest {
+  
+  private ProcessEngine usedProcessEngine = ProcessEngineConfiguration
+      .createStandaloneInMemProcessEngineConfiguration()
+      .setJdbcUrl("jdbc:h2:mem:camunda;DB_CLOSE_DELAY=1000")
+      .buildProcessEngine();
+  
+  @RegisterExtension
+  ProcessEngineExtension extension = ProcessEngineExtension
+    .builder()
+    .useProcessEngine(usedProcessEngine)
+    .build();
+  
+  @BeforeEach
+  public void setup() {
+    init(usedProcessEngine);
+  }
+  
   @Test
-  @Deployment(resources = {"testProcess.bpmn"})
-  public void shouldExecuteProcess() {
+  @Deployment(resources = "testProcess.bpmn")
+  public void testHappyPath() {
     // Given we create a new process instance
     ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("testProcess");
     // Then it should be active

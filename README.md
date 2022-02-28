@@ -36,10 +36,22 @@ and access the process engine from the extension object:
 
     RuntimeService runtimeService = extension.getProcessEngine().getRuntimeService(); 
 
+If you don't want to create a configuration file, you can add a process engine, that you configure programmatically:
 
+    public ProcessEngine myProcessEngine = ProcessEngineConfiguration
+        .createStandaloneInMemProcessEngineConfiguration()
+        .setJdbcUrl("jdbc:h2:mem:camunda;DB_CLOSE_DELAY=1000")
+        .buildProcessEngine();
+    
+    @RegisterExtension
+    ProcessEngineExtension extension = ProcessEngineExtension
+        .builder()
+        .useProcessEngine(myProcessEngine)
+        .build();
+    
 ### Examples
 To use the JUnit 5 extension together with camunda-bpm-assert have a look at the [example-camunda-bpm-assert-junit5](examples/camunda-bpm-assert/README.md).
 
-
+The example about [example-engine-camunda-bpm-assert-junit5](examples/engine-camunda-bpm-assert/README.md) shows how to create and register a process engine programmatically.
 
     
