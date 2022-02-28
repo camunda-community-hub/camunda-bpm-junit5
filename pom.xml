@@ -5,9 +5,10 @@
   <version>1.0.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <parent>
-    <groupId>org.camunda</groupId>
-    <artifactId>camunda-bpm-release-parent</artifactId>
-    <version>2.2.4</version>
+    <groupId>org.camunda.community</groupId>
+    <artifactId>community-hub-release-parent</artifactId>
+    <version>1.2.2</version>
+    <relativePath />
   </parent>
   
   <name>Camunda BPM JUnit 5 Support</name>
